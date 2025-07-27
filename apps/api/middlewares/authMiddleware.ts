@@ -45,18 +45,15 @@ export const getCognitoUserId = (req: Request) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) throw new Error('Missing token');
   const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-  return decoded?.username as string;
+  return (decoded as JwtPayload).username as string;
 }
 
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET as string;
 const ACCESS_SECRET = process.env.JWT_SECRET as string;
 const ACCESS_EXPIRY = process.env.EXPIRE_IN ?? "15m"; // short-lived
-const REFRESH_EXPIRY = process.env.EXPIRE_IN_REFRESH;
+const REFRESH_EXPIRY = process.env.EXPIRE_IN_REFRESH ?? "7d"; // long-lived
 
 
-interface CustomRequest extends Request {
-  user?: JwtPayload;
-}
 
 export const verifyToken = async (
   req: CustomRequest,
